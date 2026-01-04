@@ -4,4 +4,16 @@ config({
   path: `.env.${process.env.NODE_ENV || "development"}.local`,
 });
 
-export const { PORT } = process.env;
+export const {
+  PORT,
+  REDIS_HOST,
+  REDIS_PORT,
+  REDIS_PASSWORD,
+  MONGO_URI,
+  MONGO_RETRY_DELAY,
+  MONGO_MAX_RETRIES,
+  JWT_ACCESS_SECRET,
+  JWT_REFRESH_SECRET,
+  JWT_ACCESS_EXPIRES,
+  JWT_REFRESH_EXPIRES,
+} = process.env;
