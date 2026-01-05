@@ -1,5 +1,4 @@
-// src/app.ts
-import express from "express";
+import express, { type Express } from "express";
 import {
   applyCors,
   applyHelmet,
@@ -8,28 +7,23 @@ import {
 import { globalRateLimiter } from "@/middlewares/rateLimit.middleware.js";
 import { httpLogger } from "@/middlewares/httpLogger.middleware.js";
 import globalErrorHandler from "@/middlewares/error.middleware.js";
+import indexRouter from "./routes/index.js";
 
-const app = express();
+const app: Express = express();
 
-// 1️⃣ Security first
 applyHelmet(app);
 applyCors(app);
 applyMongoSanitize(app);
 
-// 2️⃣ Rate limiting
 app.use(globalRateLimiter);
 
-// 3️⃣ Body parsing
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// 4️⃣ Logging
 app.use(httpLogger);
 
-// 5️⃣ Routes
-// app.use("/api/v1/auth", authRoutes);
+app.use("/api/v1", indexRouter);
 
-// 6️⃣ Error handler (last)
 app.use(globalErrorHandler);
 
 export default app;
