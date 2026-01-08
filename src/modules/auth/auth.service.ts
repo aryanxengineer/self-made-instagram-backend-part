@@ -1,36 +1,52 @@
+import bcrypt from "bcrypt";
+import { UserModel } from "@/modules/user/user.model.js";
+import { ConflictError } from "@/common/errors/conflict.error.js";
+import { InternalServerError } from "@/common/errors/internal.error.js";
+import { logger } from "@/logger/index.js";
+
 export class AuthService {
+  // Default constructor
   constructor() {}
 
-
   async signUp(data: any) {
-    // 1. validate input
-    // 2. hash password
-    // 3. create user
-    // 4. return response
+    // Check existing user
+    const exists = await UserModel.findOne({
+      email: data.email,
+    }).lean();
+
+    if (exists) {
+      if (exists.email === data.email) {
+        throw new ConflictError("Email already exists");
+      }
+    }
+
+    const hashedPassword = await bcrypt.hash(data.password, 12);
+
+    let user;
+    try {
+      user = await UserModel.create({
+        fullname: data.fullname,
+        username: data.username,
+        email: data.email,
+        password: hashedPassword,
+        phoneNumber: data.phoneNumber,
+        dateOfBirth: data.dateOfBirth,
+        gender: data.gender,
+        profilePicture: data.profilePicture,
+      });
+
+    } catch (err: any) {
+      if (err.code === 11000) {
+        throw new ConflictError("User already exists");
+      }
+
+      throw new InternalServerError();
+    }
 
     return {
-      message: "User signed up (placeholder)",
+      id: user._id.toString(),
+      username: user.username,
+      email: user.email,
     };
   }
-
-  async signIn(data: any) {
-    // 1. find user
-    // 2. verify password
-    // 3. generate tokens
-    // 4. return auth response
-
-    return {
-      message: "User logged in (placeholder)",
-    };
-  }
-
-  async signOut(user: any) {
-    // 1. invalidate refresh token
-    // 2. clear cookies/session
-
-    return {
-      message: "User logged out (placeholder)",
-    };
-  }
-
 }

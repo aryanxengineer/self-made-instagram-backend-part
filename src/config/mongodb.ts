@@ -1,28 +1,16 @@
 import mongoose from "mongoose";
 
-/**
- * ===============================
- * CONFIGURATION (MONOLITH SAFE)
- * ===============================
- */
+// CONFIGURATION (MONOLITH SAFE)
 const MONGO_URI = process.env.MONGO_URI as string;
 
 const MAX_RETRIES = 5;
 const BASE_RETRY_DELAY_MS = 2000;
 
-/**
- * ===============================
- * INTERNAL STATE (SINGLETON)
- * ===============================
- */
+// INTERNAL STATE (SINGLETON)
 let isConnected = false;
 let retryCount = 0;
 
-/**
- * ===============================
- * CORE CONNECTION FUNCTION
- * ===============================
- */
+// CORE CONNECTION FUNCTION
 const connectMongo = async (): Promise<void> => {
   if (!MONGO_URI) {
     console.error("[DB] MONGO_URI missing. Application cannot start.");
@@ -70,11 +58,7 @@ const connectMongo = async (): Promise<void> => {
   }
 };
 
-/**
- * ===============================
- * CONNECTION EVENT HANDLERS
- * ===============================
- */
+// CONNECTION EVENT HANDLERS
 mongoose.connection.on("connected", () => {
   console.log("[DB] Event: connected");
 });
@@ -92,11 +76,7 @@ mongoose.connection.on("error", (err) => {
   console.error("[DB] Event: error", err);
 });
 
-/**
- * ===============================
- * GRACEFUL SHUTDOWN (MONOLITH)
- * ===============================
- */
+// GRACEFUL SHUTDOWN (MONOLITH)
 const shutdownMongo = async () => {
   if (!isConnected) return;
 
@@ -107,11 +87,6 @@ const shutdownMongo = async () => {
 
 process.on("SIGINT", shutdownMongo);
 process.on("SIGTERM", shutdownMongo);
-process.on("SIGUSR2", shutdownMongo); // nodemon support
+process.on("SIGUSR2", shutdownMongo);
 
-/**
- * ===============================
- * EXPORT
- * ===============================
- */
 export default connectMongo;

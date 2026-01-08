@@ -1,7 +1,7 @@
 import mongoSanitize from "express-mongo-sanitize";
 import helmet from "helmet";
-import cors from 'cors';
-import type { Express } from "express";
+import cors from "cors";
+import { type Express } from "express";
 
 export const applyHelmet = (app: Express) => {
   app.use(
@@ -12,13 +12,12 @@ export const applyHelmet = (app: Express) => {
   );
 };
 
-
 export const applyCors = (app: Express) => {
   app.use(
     cors({
       origin: (origin, callback) => {
         const allowedOrigins = [
-          "http://localhost:3000",
+          "http://localhost:5000",
           "https://yourdomain.com",
         ];
 

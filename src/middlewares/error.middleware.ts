@@ -1,35 +1,28 @@
-import type { NextFunction, Request, Response } from "express";
-import ApiError from "@/utils/ApiError.js";
+// src/app/error.middleware.ts
 
-const globalErrorHandler = (
-  err: Error,
-  req: Request,
+import type { Request, Response, NextFunction } from "express";
+import { AppError } from "@/common/errors/base.error.js";
+
+export const globalErrorHandler = (
+  err: unknown,
+  _req: Request,
   res: Response,
-  next: NextFunction
+  _next: NextFunction
 ) => {
-
-  // Default values of statusCode and message
-  let statusCode = 500;
-  let message = "Internal Server Error";
-
-  if (err instanceof ApiError) {
-    statusCode = err.statusCode;
-    message = err.message;
+  
+  if (err instanceof AppError) {
+    return res.status(err.statusCode).json({
+      success: false,
+      message: err.message,
+      code: err.code,
+      details: err.details,
+    });
   }
 
-  // Log full error (later → Winston / Datadog)
-  console.error({
-    name: err.name,
-    message: err.message,
-    stack: err.stack,
-    path: req.path,
-    method: req.method,
-  });
-
-  res.status(statusCode).json({
+  // fallback (never expose internal error)
+  return res.status(500).json({
     success: false,
-    message: message,
+    message: "Internal Server Error",
+    code: "UNEXPECTED_ERROR",
   });
 };
-
-export default globalErrorHandler;

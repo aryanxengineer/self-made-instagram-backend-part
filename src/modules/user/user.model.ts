@@ -13,7 +13,6 @@ const UserSchema = new Schema<SignUpUser>(
     },
     email: {
       type: String,
-      required: true,
       unique: true,
       lowercase: true,
       trim: true,
@@ -23,15 +22,14 @@ const UserSchema = new Schema<SignUpUser>(
     dateOfBirth: { type: Date, required: true },
     profilePicture: { type: String, default: null },
     gender: { type: Number, enum: [0, 1, 2], default: 2 },
+    isVerified: { type: Boolean, default: false },
   },
   {
     timestamps: true, // auto add createdAt, updatedAt
+    versionKey: false,
   }
 );
 
 // Indexing for performance
-UserSchema.index({ email: 1 });
-UserSchema.index({ username: 1 });
-UserSchema.index({ phoneNumber: 1 });
 
 export const UserModel = model<SignUpUser>("User", UserSchema);

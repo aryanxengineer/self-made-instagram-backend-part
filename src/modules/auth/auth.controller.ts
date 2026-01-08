@@ -1,33 +1,32 @@
-import type { Request, Response, NextFunction } from "express";
-import { AuthService } from "./auth.service.js";
+import type { Request, Response } from "express";
+
+import { AuthApplicationService } from "./auth.application.js";
+
+import { asyncHandler } from "@/common/utils/asyncHandler.js";
+import { sendResponse } from "@/common/utils/sendResponse.js";
+import { cookieOptions } from "@/common/http/cookieOptions.js";
+import { appCache } from "@/common/cache/index.js";
 
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authAppService: AuthApplicationService) {}
 
-  public signUp = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const result = await this.authService.signUp(req.body);
-      res.status(201).json(result);
-    } catch (error) {
-      next(error);
-    }
-  };
+  public signUp = asyncHandler(async (req: Request, res: Response) => {
+    // send data to the service
+    const { user, accessToken, refreshToken } =
+      await this.authAppService.signUp(req.body);
 
-  public signIn = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const result = await this.authService.signIn(req.body);
-      res.status(200).json(result);
-    } catch (error) {
-      next(error);
-    }
-  };
+    res.cookie("accessToken", accessToken, cookieOptions.access);
+    res.cookie("refreshToken", refreshToken, cookieOptions.refresh);
 
-  public signOut = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const result = await this.authService.signOut(req);
-      res.status(200).json(result);
-    } catch (error) {
-      next(error);
-    }
-  };
+    appCache.set("refreshToken", refreshToken, {
+      ttl: 30 * 24 * 60 * 60 * 1000,
+    });
+
+    return sendResponse({
+      res,
+      statusCode: 201,
+      message: "User registered successfully",
+      data: user,
+    });
+  });
 }
