@@ -10,6 +10,7 @@ import { appCache } from "@/common/cache/index.js";
 export class AuthController {
   constructor(private readonly authAppService: AuthApplicationService) {}
 
+  // Sign up controller
   public signUp = asyncHandler(async (req: Request, res: Response) => {
     // send data to the service
     const { user, accessToken, refreshToken } =
@@ -28,5 +29,10 @@ export class AuthController {
       message: "User registered successfully",
       data: user,
     });
+  });
+
+  // Sign in controller
+  signIn = asyncHandler(async (req: Request, res: Response) => {
+    
   });
 }

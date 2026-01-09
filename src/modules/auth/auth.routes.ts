@@ -15,5 +15,6 @@ const authAppService = new AuthApplicationService(authService, tokenService);
 const controller = new AuthController(authAppService);
 
 authRouter.post("/signup", signupUserValidation, controller.signUp);
+authRouter.post("/signin", signupUserValidation, controller.signIn);
 
 export default authRouter;
